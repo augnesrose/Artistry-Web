@@ -1,0 +1,2 @@
+C:/flutter projects/artistry_admin_web/artistry_admin_web/android/app/.cxx/Debug/53332461/x86/CMakeFiles/edit_cache.dir
+C:/flutter projects/artistry_admin_web/artistry_admin_web/android/app/.cxx/Debug/53332461/x86/CMakeFiles/rebuild_cache.dir
