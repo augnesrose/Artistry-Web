@@ -64,6 +64,42 @@ class _OrdersPageState extends State<OrdersPage> {
     }
   }
 
+  Future<void> _updateCancellationStatus(String orderId, bool status) async {
+  try {
+    final url = Uri.parse("http://localhost:3000/order/updateCancellationStatus/$orderId");
+    final response = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({"cancellation": status})
+    );
+    
+    if (response.statusCode == 200) {
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cancellation request updated'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update cancellation status'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
+
   String formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) return 'N/A';
     try {
@@ -222,17 +258,21 @@ class _OrdersPageState extends State<OrdersPage> {
           fontWeight: FontWeight.bold
         ),
       )),
-      DataCell(MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: IconButton(
-          icon: Icon(Icons.request_page),
-          color: Colors.orange,
-          tooltip: "View Cancellation Requests",
-          onPressed: () {
-            
-          },
-        ),
-      )),
+      DataCell(
+        orderData['cancellation'] == true 
+      ? ElevatedButton(
+          onPressed: () => _handleCancellationRequest(orderData['_id'], statusNotifier),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange.withOpacity(0.2),
+            foregroundColor: Colors.orange[800],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4.r),
+            ),
+          ),
+          child: Text("Pending", style: TextStyle(fontSize: 15)),
+        )
+      : Text("No Request", style: TextStyle(color: Colors.grey, fontSize: 15,fontWeight: FontWeight.bold)),
+),
       DataCell(MouseRegion(
         cursor: SystemMouseCursors.click,
         child: IconButton(
@@ -248,6 +288,47 @@ class _OrdersPageState extends State<OrdersPage> {
       )),
     ]);
   }
+
+
+  void _handleCancellationRequest(String orderId, ValueNotifier<String> statusNotifier) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Cancellation Request", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text("Do you want to approve the cancellation request for this order?"),
+        actions: <Widget>[
+          TextButton(
+            child: Text("Decline", style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              // Decline the cancellation by setting cancellation to false
+              _updateCancellationStatus(orderId, false).then((_) {
+                Navigator.of(context).pop();
+                fetchOrders(); // Refresh the list
+              });
+            },
+          ),
+          ElevatedButton(
+            child: Text("Approve Cancellation"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              // Approve cancellation by updating the order status to "Cancelled"
+              updateOrderStatus(orderId, "Cancelled").then((_) {
+                statusNotifier.value = "Cancelled";
+                Navigator.of(context).pop();
+                fetchOrders(); // Refresh the list
+              });
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   void _showOrderDetailsDialog(
     BuildContext context, 
