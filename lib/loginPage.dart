@@ -53,6 +53,16 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
+                "ARTISTRY",
+                style: TextStyle(
+                  fontSize: 32.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2.0,
+                  color: Colors.black
+                ),
+              ),
+              SizedBox(height: 15.h),
+              Text(
                 "ADMIN LOGIN",
                 style: TextStyle(
                   fontSize: 24.sp,
