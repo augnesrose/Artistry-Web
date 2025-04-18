@@ -381,12 +381,15 @@ class _AddProductState extends State<AddProduct> {
 }
 class CategoryDropdown extends StatefulWidget {
   final TextEditingController controller;
+
   CategoryDropdown({Key? key, required this.controller}) : super(key: key);
+
   @override
   _CategoryDropdownState createState() => _CategoryDropdownState();
 }
+
 class _CategoryDropdownState extends State<CategoryDropdown> {
-  String? selectedCategory; // State variable to store selected category
+  String? _selectedValue;
   final List<String> categories = [
     "Paintings",
     "Photography",
@@ -396,7 +399,14 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
     "Digital Art",
     "Poster",
     "Sculpture"
-  ]; // Category options
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.controller.text.isNotEmpty ? widget.controller.text : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -414,12 +424,9 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
             ],
           ),
           child: DropdownButtonFormField<String>(
-            value: selectedCategory,
+            value: _selectedValue,
+            dropdownColor: Colors.white,
             decoration: InputDecoration(
-              hintText: "Select a Category",
-              hintStyle: TextStyle(
-                color: Colors.grey[600],
-              ),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -437,6 +444,13 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 16,
                 horizontal: 16,
+              ),
+            ),
+            hint: Text(
+              "Select a Category",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
               ),
             ),
             items: categories.map((category) {
@@ -448,10 +462,10 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                 ),
               );
             }).toList(),
-            onChanged: (value) {
+            onChanged: (String? newValue) {
               setState(() {
-                selectedCategory = value;
-                widget.controller.text = value ?? '';
+                _selectedValue = newValue;
+                widget.controller.text = newValue ?? '';
               });
             },
           ),
@@ -459,7 +473,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
         SizedBox(height: 16),
         // Display selected category
         Text(
-          "Selected Category: ${selectedCategory ?? 'None'}",
+          "Selected Category: ${_selectedValue ?? 'None'}",
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),
@@ -467,14 +481,18 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
     );
   }
 }
+
 class MediumDropdown extends StatefulWidget {
   final TextEditingController controller;
+
   MediumDropdown({Key? key, required this.controller}) : super(key: key);
+
   @override
   _MediumDropdownState createState() => _MediumDropdownState();
 }
+
 class _MediumDropdownState extends State<MediumDropdown> {
-  String? selectedMedium;
+  String? _selectedValue;
   final List<String> mediums = [
     "Oil",
     "Acrylic",
@@ -486,6 +504,13 @@ class _MediumDropdownState extends State<MediumDropdown> {
     "Digital",
     "Others"
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.controller.text.isNotEmpty ? widget.controller.text : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -503,12 +528,9 @@ class _MediumDropdownState extends State<MediumDropdown> {
             ],
           ),
           child: DropdownButtonFormField<String>(
-            value: selectedMedium,
+            value: _selectedValue,
+            dropdownColor: Colors.white,
             decoration: InputDecoration(
-              hintText: "Select a Medium",
-              hintStyle: TextStyle(
-                color: Colors.grey[600],
-              ),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -526,6 +548,13 @@ class _MediumDropdownState extends State<MediumDropdown> {
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 16,
                 horizontal: 16,
+              ),
+            ),
+            hint: Text(
+              "Select a Medium",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
               ),
             ),
             items: mediums.map((medium) {
@@ -537,18 +566,18 @@ class _MediumDropdownState extends State<MediumDropdown> {
                 ),
               );
             }).toList(),
-            onChanged: (value) {
+            onChanged: (String? newValue) {
               setState(() {
-                selectedMedium = value;
-                widget.controller.text = value ?? '';
+                _selectedValue = newValue;
+                widget.controller.text = newValue ?? '';
               });
             },
           ),
         ),
         SizedBox(height: 16),
-        // Display selected category
+        // Display selected medium
         Text(
-          "Selected Medium: ${selectedMedium ?? 'None'}",
+          "Selected Medium: ${_selectedValue ?? 'None'}",
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),
@@ -556,15 +585,26 @@ class _MediumDropdownState extends State<MediumDropdown> {
     );
   }
 }
+
 class SizeDropdown extends StatefulWidget {
   final TextEditingController controller;
+
   SizeDropdown({Key? key, required this.controller}) : super(key: key);
+
   @override
   _SizeDropdownState createState() => _SizeDropdownState();
 }
+
 class _SizeDropdownState extends State<SizeDropdown> {
-  String? selectedSize;
-  final List<String> sizes = ["cm", "inches"];
+  String? _selectedValue;
+  final List<String> sizes = ["cm", "inches", "mm"];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.controller.text.isNotEmpty ? widget.controller.text : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -582,12 +622,9 @@ class _SizeDropdownState extends State<SizeDropdown> {
             ],
           ),
           child: DropdownButtonFormField<String>(
-            value: selectedSize,
+            value: _selectedValue,
+            dropdownColor: Colors.white,
             decoration: InputDecoration(
-              hintText: "Select a Size",
-              hintStyle: TextStyle(
-                color: Colors.grey[600],
-              ),
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -607,6 +644,13 @@ class _SizeDropdownState extends State<SizeDropdown> {
                 horizontal: 16,
               ),
             ),
+            hint: Text(
+              "Select a Unit",
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 16,
+              ),
+            ),
             items: sizes.map((size) {
               return DropdownMenuItem(
                 value: size,
@@ -616,18 +660,18 @@ class _SizeDropdownState extends State<SizeDropdown> {
                 ),
               );
             }).toList(),
-            onChanged: (value) {
+            onChanged: (String? newValue) {
               setState(() {
-                selectedSize = value;
-                widget.controller.text = value ?? '';
+                _selectedValue = newValue;
+                widget.controller.text = newValue ?? '';
               });
             },
           ),
         ),
         SizedBox(height: 16),
-        // Display selected category
+        // Display selected unit
         Text(
-          "Selected Size: ${selectedSize ?? 'None'}",
+          "Selected Unit: ${_selectedValue ?? 'None'}",
           style: TextStyle(
               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
         ),

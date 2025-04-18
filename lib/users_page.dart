@@ -17,11 +17,23 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   List<dynamic> users = [];
   bool isLoading = true;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     fetchUsers();
+    
+    // Set up automatic refresh every 60 seconds
+    _refreshTimer = Timer.periodic(Duration(seconds: 60), (timer) {
+      fetchUsers();
+    });
+  }
+  
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchUsers() async {
@@ -63,52 +75,166 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
+  void _showUserDetailsDialog(dynamic user) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('User Details', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _detailRow('ID', user['_id']),
+                _detailRow('Name', user['name']),
+                _detailRow('Email', user['email']),
+                _detailRow('Phone', user['phone'] ?? 'Not provided'),
+                _detailRow('Address', user['address'] ?? 'Not provided'),
+                // Add more details as needed
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          SizedBox(height: 4),
+          Text(value, style: TextStyle(fontSize: 14)),
+          Divider(),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
-          title: Text('Users Data'),
-        ),
-        body: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : users.isEmpty
-                ? Center(
-                    child:
-                        Text('No users found', style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)))
-                : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: DataTable(
-                        horizontalMargin: 24,
-                        columnSpacing: 30,
-                        columns: [
-                        DataColumn(label: Text('ID',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),)),
-                        DataColumn(label: Text('Name',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),)),
-                        DataColumn(label: Text('Email',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),)),
-                        DataColumn(label: Text('Details',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),)),
-                      ], rows:users.map((user)=> DataRow(cells: [
-                          DataCell(SizedBox(
-                              width: 120,
-                              child: Text(
-                                user['_id'],
-                                overflow: TextOverflow.ellipsis,
-                              ))),
-                          DataCell(Text(user['name'])),
-                          DataCell(Text(user['email'])),
-                          DataCell(IconButton(
-                            icon: Icon(
-                              Icons.edit,
-                              color: Colors.blue,
-                              size: 24,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text('Users Data'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                isLoading = true;
+              });
+              fetchUsers();
+            },
+          ),
+        ],
+      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : users.isEmpty
+              ? Center(
+                  child: Text(
+                    'No users found',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              horizontalMargin: 24,
+                              columnSpacing: 30,
+                              columns: [
+                                DataColumn(
+                                  label: Text(
+                                    'ID',
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    'Name',
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    'Email',
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    'Details',
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                              rows: users.map((user) => DataRow(cells: [
+                                    DataCell(SizedBox(
+                                      width: 120,
+                                      child: Text(
+                                        user['_id'],
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: const Color.fromARGB(255, 41, 38, 38),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )),
+                                    DataCell(Text(
+                                      user['name'],
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(255, 41, 38, 38),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
+                                    DataCell(Text(
+                                      user['email'],
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(255, 41, 38, 38),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
+                                    DataCell(IconButton(
+                                      icon: Icon(
+                                        Icons.visibility,
+                                        color: Colors.blue,
+                                        size: 24,
+                                      ),
+                                      onPressed: () {
+                                        _showUserDetailsDialog(user);
+                                      },
+                                    ))
+                                  ])).toList(),
                             ),
-                            onPressed: () {},
-                          ))
-                        ])).toList()
-                    ))));
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+    );
   }
 }

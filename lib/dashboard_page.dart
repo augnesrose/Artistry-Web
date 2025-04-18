@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,19 +24,221 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'Collage': 5,
     'Digital Art': 3,
   };
-  final double totalIncome = 24850;
+
+  double totalIncome=0;
+  int totalUsers=0;
+  int totalProducts=0;
+  int soldProducts=0;
+  int newJoinees=0;
+  //Map<String,double> categoryData={};
+  // bool isLoadingCategories = true;
+  // String categoryError = '';
+
+  
+  Future<void> fetchTotalUser()async{
+    try{
+      
+      final url = Uri.parse("http://localhost:3000/dashboard/totalUsers");
+      final headers={
+        'Content-Type': 'application/json',
+      };
+      final response = await http.get(url,headers: headers);
+      print('Users Count:$totalUsers');
+      if(response.statusCode==200){
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          totalUsers= data['userCount'] ?? 0;
+          print("totalUsers: $totalUsers");
+        });
+        
+      }
+      else{
+        print('Error Occured');
+      }
+
+    }
+    catch(e){
+      print('Error fetching products:$e');
+    }
+  }
+
+  Future<void> fetchTotalIncome() async{
+    try{
+      final url = Uri.parse("http://localhost:3000/dashboard/totalIncome");
+      final headers={
+        'Content-Type':'application/json',
+      };
+      final response = await http.get(url,headers: headers);
+      final data= json.decode(response.body);
+      print("respobnse :$data");
+      if(response.statusCode==200){
+        setState(() {
+          totalIncome=(data['totalIncome'][0]['totalIncome'] ?? 0).toDouble();
+          print("Total Income: $totalIncome");
+        });
+      }
+      else{
+        print("Error Occured");
+      }
+    }
+    catch(e){
+      print("Some Error Occured $e");
+    }
+  }
+
+  Future<void> fetchTotalProducts()async{
+    try{
+      
+      final url = Uri.parse("http://localhost:3000/dashboard/totalProducts");
+      final headers={
+        'Content-Type': 'application/json',
+      };
+      final response = await http.get(url,headers: headers);
+      print('Users Count:$totalProducts');
+      if(response.statusCode==200){
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          totalProducts= data['productCount'] ?? 0;
+          print("totalUsers: $totalProducts");
+        });
+        
+      }
+      else{
+        print('Error Occured');
+      }
+
+    }
+    catch(e){
+      print('Error fetching products:$e');
+    }
+  }
+
+  Future<void> fetchProductsSold()async{
+    try{
+      
+      final url = Uri.parse("http://localhost:3000/dashboard/soldProducts");
+      final headers={
+        'Content-Type': 'application/json',
+      };
+      final response = await http.get(url,headers: headers);
+      print('Sold out Count:$soldProducts');
+      if(response.statusCode==200){
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          soldProducts= data['soldOutCount'] ?? 0;
+          print("Sold out: $soldProducts");
+        });
+        
+      }
+      else{
+        print('Error Occured');
+      }
+
+    }
+    catch(e){
+      print('Error fetching products:$e');
+    }
+  }
+
+  Future<void> fetchNewJoinees()async{
+    try{
+      
+      final url = Uri.parse("http://localhost:3000/dashboard/newJoinees");
+      final headers={
+        'Content-Type': 'application/json',
+      };
+      final response = await http.get(url,headers: headers);
+      print('New joinees:$newJoinees');
+      if(response.statusCode==200){
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          newJoinees= data['newJoinees'] ?? 0;
+          print("New Joinees: $newJoinees");
+        });
+        
+      }
+      else{
+        print('Error Occured');
+      }
+
+    }
+    catch(e){
+      print('Error fetching products:$e');
+    }
+  }
+  // Future<void> fetchCategoryData() async {
+  //   try {
+  //     final url = Uri.parse("http://localhost:3000/dashboard/categoryWiseCount");
+  //     final headers = {
+  //       'Content-Type': 'application/json',
+  //     };
+      
+  //     final response = await http.get(url, headers: headers);
+      
+  //     if (response.statusCode == 200) {
+  //       final data = json.decode(response.body);
+        
+  //       if (data['success'] == true) {
+  //         final Map<String, dynamic> rawData = data['categoryData'];
+  //         final Map<String, double> formattedData = {};
+          
+  //         rawData.forEach((key, value) {
+  //           formattedData[key] = (value is num) ? value.toDouble():0.0;
+  //         });
+          
+  //         setState(() {
+  //           categoryData = formattedData;
+  //           isLoadingCategories = false;
+  //         });
+  //       } else {
+  //         setState(() {
+  //           categoryError = data['message'] ?? 'Failed to fetch category data';
+  //           isLoadingCategories = false;
+  //         });
+  //       }
+  //     } else {
+  //       setState(() {
+  //         categoryError = 'Failed to connect to server: ${response.statusCode}';
+  //         isLoadingCategories = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       categoryError = 'Error: ${e.toString()}';
+  //       isLoadingCategories = false;
+  //     });
+  //     print('Error fetching category data: $e');
+  //   }
+  // }
+
+
+   @override
+  void initState(){
+    super.initState();
+    fetchTotalUser();
+    fetchTotalIncome();
+    fetchTotalProducts();
+    fetchProductsSold();
+    fetchNewJoinees();
+    //fetchCategoryData();
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set Scaffold background to white
+      backgroundColor: Colors.white, 
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header and total income
+            
               Row(
                 children: [
                   Expanded(
@@ -63,25 +268,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     _buildDashboardCard(
                       title: "Total Users",
-                      value: 100,
+                      value: totalUsers,
                       icon: Icons.person,
                       color: const Color(0xFFc5a64c),
                     ),
                     _buildDashboardCard(
                       title: "Products Sold",
-                      value: 21,
+                      value: soldProducts,
                       icon: Icons.shopping_cart,
                       color: const Color(0xFF4c61c5),
                     ),
                     _buildDashboardCard(
                       title: "Total Products",
-                      value: 100,
+                      value: totalProducts,
                       icon: Icons.edit,
                       color: const Color(0xFFc54c4c),
                     ),
                     _buildDashboardCard(
                       title: "New Joinees",
-                      value: 15,
+                      value: newJoinees,
                       icon: Icons.group,
                       color: const Color(0xFF4c8a52),
                     ),
@@ -407,7 +612,7 @@ class _MonthlySalesChartState extends State<MonthlySalesChart>
             borderRadius: BorderRadius.circular(4),
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
-              toY: widget.salesData.reduce((a, b) => a > b ? a : b).toDouble(),
+              toY: 12,
               color: Colors.grey.withOpacity(0.05),
             ),
           ),
@@ -586,8 +791,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> with SingleTickerPr
                   child: Text(
                     category,
                     style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
